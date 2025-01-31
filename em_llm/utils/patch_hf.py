@@ -242,7 +242,22 @@ def patch_hf(
     else:
         raise ValueError(f"Only supports llama, mistral, phi3, and qwen2 models. {model.__class__.__name__} was passed.")
 
-    hf_rope = model.model.layers[0].self_attn.rotary_emb 
+    # Handle different RoPE implementations
+    attn = model.model.layers[0].self_attn
+    if hasattr(attn, 'rotary_emb'):
+        hf_rope = attn.rotary_emb
+    elif hasattr(attn, '_rope'):
+        hf_rope = attn._rope
+    else:
+        # For Llama 3.2, construct RoPE parameters from config
+        hf_rope = type('RoPE', (), {})()
+        hf_rope.dim = attn.head_dim
+        hf_rope.base = model.config.rope_theta if hasattr(model.config, 'rope_theta') else 10000.0
+        if hasattr(model.config, 'rope_scaling') and isinstance(model.config.rope_scaling, dict):
+            hf_rope.scaling_factor = model.config.rope_scaling.get('factor', 1.0)
+        else:
+            hf_rope.scaling_factor = 1.0
+
     if not hasattr(hf_rope, 'dim'):
         hf_rope.dim = hf_rope.rope_kwargs.get("dim", None)
         hf_rope.base = hf_rope.rope_kwargs.get("base", None).rope_theta

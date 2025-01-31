@@ -24,9 +24,8 @@ model:
   base: 500000
   distance_scale: 1.0
   surprisal_threshold_gamma: 1.0
-  rope_scaling:
-    type: dynamic
-    factor: 2.0      # Conservative scaling factor
+  rope_theta: 10000.0
+  rope_scaling_factor: 2.0  # Conservative scaling factor
 
   min_free_cpu_memory: 100
   disk_offload_threshold: 300000
