@@ -1,0 +1,46 @@
+verbose: false
+compute_ppl: true
+return_block_size: true
+logging: true
+em_splitter: surprisal
+
+max_len: 2147483647
+chunk_size: 512
+conv_type: llama-3-inst
+
+extended_passkey: 1024
+
+model:
+  type: em-llm
+  path: meta-llama/Llama-3.2-1B-Instruct
+  min_block_size: 8
+  max_block_size: 64  # Reduced from 128 for memory
+  n_init: 128
+  n_local: 2048      # Reduced from 4096 for memory
+  n_mem: 1024        # Reduced from 2048 for memory
+  repr_topk: 4
+  max_cached_block: 256  # Reduced from 512 for memory
+  exc_block_size: 256    # Reduced from 512 for memory
+  base: 500000
+  distance_scale: 1.0
+  surprisal_threshold_gamma: 1.0
+  rope_scaling:
+    type: dynamic
+    factor: 2.0      # Conservative scaling factor
+
+  min_free_cpu_memory: 100
+  disk_offload_threshold: 300000
+  vector_offload_threshold: 50000
+
+  similarity_refinement_kwargs:
+    similarity_refinement: false
+    refine_with_buffer: true
+    refine_from_layer: 20
+    similarity_metric: modularity
+
+  contiguity_buffer_kwargs:
+    use_contiguity_buffer: false
+    contiguity_buffer_size: 0.3
+
+  uniform_blocks: false
+  random_topk_blocks: false 
